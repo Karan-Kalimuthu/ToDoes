@@ -23,5 +23,17 @@ namespace ToDoes.Controllers
                 return Json(new { data = toDos }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpGet]
+        public ActionResult AddOrEdit(int id = 0)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddOrEdit()
+        {
+            return View();
+        }
     }
 }
