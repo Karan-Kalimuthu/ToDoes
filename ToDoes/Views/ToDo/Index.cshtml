@@ -5,12 +5,13 @@
 
 <h2>Index</h2>
 
-<a class="btn btn-default" style="margin-bottom:10px"> <i class="fa fa-plus"></i>&nbsp;Add New</a>
+<a class="btn btn-success" style="margin-bottom:10px" onclick="PopupForm('@Url.Action("AddOrEdit","ToDo")')"> <i class="fa fa-plus"></i>Add New</a>
 <table id="todoTable" class="table table-striped table-bordered" >
     <thead>
         <tr>
             <th>Description</th>
             <th>IsDone</th>
+            <th></th>
         </tr>
     </thead>
 </table>
@@ -27,8 +28,9 @@
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js"></script>
     <script>
+        var Popup, dataTable;
         $(document).ready(function () {
-            $("#todoTable").DataTable({
+            dataTable = $("#todoTable").DataTable({
                 "ajax": {
                     "url": "/ToDo/GetData",
                     "type": "GET",
@@ -36,7 +38,14 @@
                 },
                 "columns": [
                     { "data": "Description" },
-                    { "data": "IsDone" }
+                    { "data": "IsDone" },
+                    {
+                        "data": "Id", "render": function () {
+                            return "<a class='btn btn-default btn-sm'><i class='fa fa-pencil'></i> Edit</a> <a class='btn btn-danger btn-sm' style='margin-left:5px'><i class='fa fa-trash'></i> Delete</a> "
+                        },
+                        "orderable": false,
+                        "width":"150px"
+                    }
                 ],
                 "language": {
                     "emptyTable": "No data found, Please click on <b>Add New</b> button!."
@@ -45,5 +54,51 @@
             });
 
         });
+
+        function PopupForm(url) {
+            var formDiv = $('<div/>');
+            $.get(url)
+                .done(function (response) {
+                    formDiv.html(response);
+                    Popup = formDiv.dialog({
+                        autoOpen: true,
+                        resizable: false,
+                        title: ' Fill ToDo',
+                        height: 250,
+                        width: 300,
+                        close: function () {
+                            Popup.dialog('destroy').remove();
+
+                        }
+
+                    });
+                });
+        }
+
+        function SubmitForm(form) {
+            $.validator.unobtrusive.parse(form);
+
+            if ($(form).valid()) {
+                $.ajax({
+                    type: "POST",
+                    url: form.action,
+                    data: $(form).serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            Popup.dialog('close');
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                className: "success"
+                            }) 
+
+
+                        }
+                    }
+                });
+            }
+            return false;
+        }
     </script>
 }

@@ -31,9 +31,15 @@ namespace ToDoes.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddOrEdit()
+        public ActionResult AddOrEdit(ToDo toDo)
         {
-            return View();
+            using (DBModel db = new DBModel())
+            {
+                db.ToDoes.Add(toDo);
+                db.SaveChanges();
+                return Json(new { success = true, message = "Saved Successfully" }, JsonRequestBehavior.AllowGet);
+            }
+            
         }
     }
 }
