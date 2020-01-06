@@ -61,5 +61,24 @@ namespace ToDoes.Controllers
             }
             
         }
+
+
+        [HttpDelete,ActionName("Delete")]
+        public ActionResult Delete(int id = 0)
+        {
+            if (id == 0)
+                return View(new ToDo());
+            else
+            {
+                using (DBModel db = new DBModel())
+                {
+                    ToDo toDo = db.ToDoes.Where(x => x.Id == id).FirstOrDefault<ToDo>();
+                    db.ToDoes.Remove(toDo);
+                    db.SaveChanges();
+                    return Json(new { success = true, message = "Deleted Successfully" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+
+        }
     }
 }
