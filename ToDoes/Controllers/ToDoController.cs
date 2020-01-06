@@ -63,7 +63,7 @@ namespace ToDoes.Controllers
         }
 
 
-        [HttpDelete,ActionName("Delete")]
+        [HttpPost,ActionName("Delete")]
         public ActionResult Delete(int id = 0)
         {
             if (id == 0)
