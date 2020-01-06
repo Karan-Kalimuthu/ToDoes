@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -27,7 +28,16 @@ namespace ToDoes.Controllers
         [HttpGet]
         public ActionResult AddOrEdit(int id = 0)
         {
-            return View();
+            if (id == 0)
+                return View(new ToDo());     
+            else
+            {
+                using (DBModel db = new DBModel())
+                {
+                    return View(db.ToDoes.Where(x => x.Id == id).FirstOrDefault<ToDo>());
+                }
+            }
+            
         }
 
         [HttpPost]
@@ -35,9 +45,19 @@ namespace ToDoes.Controllers
         {
             using (DBModel db = new DBModel())
             {
-                db.ToDoes.Add(toDo);
-                db.SaveChanges();
-                return Json(new { success = true, message = "Saved Successfully" }, JsonRequestBehavior.AllowGet);
+                if(toDo.Id==0)
+                {
+                    db.ToDoes.Add(toDo);
+                    db.SaveChanges();
+                    return Json(new { success = true, message = "Saved Successfully" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    db.Entry(toDo).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return Json(new { success = true, message = "Updated Successfully" }, JsonRequestBehavior.AllowGet);
+                }
+                
             }
             
         }
